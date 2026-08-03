@@ -7,7 +7,6 @@ import API from "../services/api";
 import "./Login.css";
 
 export default function Register() {
-
   const navigate = useNavigate();
 
   const [full_name, setFullName] = useState("");
@@ -17,7 +16,6 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   const register = async () => {
-
     if (!full_name || !email || !password) {
       toast.error("Please fill all fields");
       return;
@@ -29,8 +27,9 @@ export default function Register() {
     }
 
     try {
-
       setLoading(true);
+
+      console.log("Sending registration request...");
 
       const res = await API.post("/auth/register", {
         full_name,
@@ -38,30 +37,42 @@ export default function Register() {
         password,
       });
 
+      console.log("SUCCESS:", res.data);
+
       toast.success(res.data.message);
 
       navigate("/");
-
     } catch (err) {
+      console.log("========== REGISTER ERROR ==========");
+      console.log(err);
 
-      toast.error(
-        err.response?.data?.message || "Registration Failed"
-      );
+      if (err.response) {
+        console.log("Status:", err.response.status);
+        console.log("Data:", err.response.data);
 
+        toast.error(
+          err.response.data.message || "Registration Failed"
+        );
+      } else if (err.request) {
+        console.log("No response received from backend");
+        console.log(err.request);
+
+        toast.error("Backend did not respond");
+      } else {
+        console.log("Error:", err.message);
+
+        toast.error(err.message);
+      }
+
+      console.log("====================================");
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   return (
-
     <div className="login-page">
-
       <div className="left-panel">
-
         <h1>PrepPilot AI</h1>
 
         <p className="subtitle">
@@ -69,59 +80,45 @@ export default function Register() {
         </p>
 
         <div className="feature">
-
           <span>📄</span>
 
           <div>
-
             <h3>AI Resume Review</h3>
 
             <p>
               Receive ATS score and improvement suggestions.
             </p>
-
           </div>
-
         </div>
 
         <div className="feature">
-
           <span>🤖</span>
 
           <div>
-
             <h3>Mock Interviews</h3>
 
             <p>
-              Practice company-specific interview questions with AI feedback.
+              Practice company-specific interview questions with AI
+              feedback.
             </p>
-
           </div>
-
         </div>
 
         <div className="feature">
-
           <span>📈</span>
 
           <div>
-
             <h3>Progress Tracking</h3>
 
             <p>
               Monitor interview readiness and resume performance.
             </p>
-
           </div>
-
         </div>
-
       </div>
 
       <div className="right-panel">
-
         <div className="login-card">
-
           <h2>Create Account 🚀</h2>
 
           <p>Join PrepPilot AI</p>
@@ -151,7 +148,9 @@ export default function Register() {
             onClick={register}
             disabled={loading}
           >
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading
+              ? "Creating Account..."
+              : "Create Account"}
           </button>
 
           <Link
@@ -160,13 +159,8 @@ export default function Register() {
           >
             Already have an account? Login
           </Link>
-
         </div>
-
       </div>
-
     </div>
-
   );
-
 }
